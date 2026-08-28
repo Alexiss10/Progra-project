@@ -8,7 +8,7 @@ package clases;
  *
  * @author ALEXIS
  */
-public class clase1 {
+public class clase {
     public static void main(String[] args) {
         System.out.println("Hola, como estas");
         System.out.println("Hola mundo");
