@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package clases;
 
 /**
@@ -13,5 +14,7 @@ public class clase1 {
         System.out.println("Hola, como estas");
         System.out.println("Hola mundo");
         System.out.println("-----------");
+        CLASE2 class2 = new CLASE2();
+        class2.imprimirClase2();
     }
 }
