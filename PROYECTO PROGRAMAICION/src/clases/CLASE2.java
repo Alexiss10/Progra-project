@@ -7,10 +7,9 @@ import java.util.Scanner;
 
 /**
  *
- * @author ALEXIS
+ * @author ALEXIS y pancho hola.
  */
 public class CLASE2 {
-    
     public void imprimirClase2(){
         System.out.println("CLASE 2");
     }
