@@ -1,0 +1,2 @@
+1;TEL-001;Algodón;Tela de algodón para camisas
+2;TEL-002;Poliéster;Tela de poliéster para uniformes

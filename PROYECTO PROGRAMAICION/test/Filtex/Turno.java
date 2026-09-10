@@ -35,6 +35,7 @@ public class Turno {
         return horaFinalizacion;
     }
 
+    
     public String toString() {
         return idTurno + " - " + nombre + " ("
                 + horaInicio + " - " + horaFinalizacion + ")";
