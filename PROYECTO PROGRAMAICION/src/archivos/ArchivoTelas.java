@@ -1,48 +1,83 @@
 package archivos;
 
+import clases.Tela;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArchivoTelas {
 
-    public String leerContenido() throws IOException {
+    private Path ruta = Path.of("datos", "telas.txt");
 
-        Path ruta = Path.of("datos", "telas.txt");
+    public ArrayList<Tela> cargar() throws IOException {
 
-        String contenido = Files.readString(
+        ArrayList<Tela> telasCargadas = new ArrayList<>();
+
+        List<String> lineas = Files.readAllLines(
                 ruta,
                 StandardCharsets.UTF_8
         );
 
-        return contenido;
-    }
+        int numeroLinea = 0;
 
-    public static void main(String[] args) {
+        for (String linea : lineas) {
 
-        ArchivoTelas archivo = new ArchivoTelas();
+            numeroLinea++;
 
-        try {
+            String[] datos = linea.split(";", -1);
 
-            String contenido = archivo.leerContenido();
+            if (datos.length != 4) {
+                throw new IOException(
+                        "La línea " + numeroLinea
+                        + " debe contener cuatro datos."
+                );
+            }
 
-            JOptionPane.showMessageDialog(
-                    null,
-                    contenido,
-                    "Contenido de telas.txt",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            try {
 
-        } catch (IOException e) {
+                int idTela = Integer.parseInt(datos[0].trim());
 
-            JOptionPane.showMessageDialog(
-                    null,
-                    "No se pudo leer el archivo:\n" + e.getMessage(),
-                    "Error de lectura",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                Tela tela = new Tela(
+                        idTela,
+                        datos[1],
+                        datos[2],
+                        datos[3]
+                );
+
+                telasCargadas.add(tela);
+
+            } catch (IllegalArgumentException e) {
+
+                throw new IOException(
+                        "Datos inválidos en la línea "
+                        + numeroLinea + ": " + e.getMessage(),
+                        e
+                );
+            }
         }
+
+        return telasCargadas;
     }
+
+    public void guardar(ArrayList<Tela> telas) throws IOException {
+
+        ArrayList<String> lineas = new ArrayList<>();
+
+        for (Tela tela : telas) {
+
+            String linea = tela.getIdTela()
+                    + ";" + tela.getCodigo()
+                    + ";" + tela.getNombre()
+                    + ";" + tela.getDescripcion();
+
+            lineas.add(linea);
+        }
+        
+        Files.write(ruta, lineas, StandardCharsets.UTF_8);
+    }
+    
+    
 }
