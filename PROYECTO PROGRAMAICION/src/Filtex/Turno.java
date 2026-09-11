@@ -36,6 +36,7 @@ public class Turno {
     }
 
     
+    @Override
     public String toString() {
         return idTurno + " - " + nombre + " ("
                 + horaInicio + " - " + horaFinalizacion + ")";

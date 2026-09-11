@@ -64,6 +64,7 @@ public class Trabajador {
     public ArrayList<Turno> getTurnos() {
         return new ArrayList<>(turnos);
     }
+    @Override
     public String toString() {
         return idTrabajador + " - " + nombre;
     }
