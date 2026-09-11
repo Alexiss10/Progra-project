@@ -50,16 +50,18 @@ public class Produccion {
         }
 
         if (turno == null) {
-            throw new IllegalArgumentException("Debes indicar el turno "
-                    + "de producción.");
-
+            throw new IllegalArgumentException(
+                    "Debes indicar el turno de producción."
+            );
         }
+
+        validarHorario(hora, turno);
 
         this.cantProducida = cantProducida;
         this.fecha = fecha;
         this.hora = hora;
-        this.idProduccion = idProduccion;
         this.tela = tela;
+        this.turno = turno;
     }
 
     public int getIdProduccion() {
@@ -108,7 +110,38 @@ public class Produccion {
                 this.tela, turno
         );
     }
-    
-    
-    
+
+    private void validarHorario(LocalTime hora, Turno turno) {
+
+        LocalTime inicio = turno.getHoraInicio();
+        LocalTime fin = turno.getHoraFinalizacion();
+
+        if (inicio == null || fin == null) {
+            throw new IllegalArgumentException("El turno debe tener "
+                    + "horario de inicio y finalización.");
+        }
+
+        if (inicio.equals(fin)) {
+            throw new IllegalArgumentException("El inicio y la "
+                    + "finalización del turno no pueden ser iguales.");
+        }
+
+        boolean horaValida;
+
+        if (inicio.isBefore(fin)) {
+
+            horaValida = !hora.isBefore(inicio) && hora.isBefore(fin);
+
+        } else {
+
+            horaValida = !hora.isBefore(inicio) || hora.isBefore(fin);
+        }
+
+        if (!horaValida) {
+            throw new IllegalArgumentException("La hora de producción"
+                    + " no pertenece al turno seleccionado.");
+        }
+
+    }
+
 }

@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import Filtex.Turno;
+import archivos.ArchivoProduccion;
+import java.io.IOException;
 
 /**
  *
@@ -14,6 +16,7 @@ public class gestionProduccion {
     private ArrayList<Produccion> producciones;
     private int siguienteId = 1;
     private GestionTelas gestionTelas;
+    private ArchivoProduccion archivo;
 
     public gestionProduccion(GestionTelas gestionTelas) {
 
@@ -23,6 +26,7 @@ public class gestionProduccion {
         }
         this.gestionTelas = gestionTelas;
         producciones = new ArrayList<>();
+        archivo = new ArchivoProduccion();
     }
 
     public Produccion buscarPorId(int idProduccion) {
@@ -88,8 +92,7 @@ public class gestionProduccion {
         return new ArrayList<>(producciones);
     }
 
-    
-    public ArrayList<Produccion> buscarPorFechaYHora(LocalDate fecha, 
+    public ArrayList<Produccion> buscarPorFechaYHora(LocalDate fecha,
             LocalTime hora) {
 
         if (fecha == null || hora == null) {
@@ -109,4 +112,23 @@ public class gestionProduccion {
 
         return resultados;
     }
+
+    public void guardarCambios() throws IOException {
+        archivo.guardar(producciones);
+    }
+
+    private Turno buscarTurnoPorId(int idTurno,
+            ArrayList<Turno> turnos) {
+
+        for (Turno turno : turnos) {
+
+            if (turno.getIdTurno() == idTurno) {
+                return turno;
+            }
+        }
+
+        return null;
+    }
+    
+    
 }
