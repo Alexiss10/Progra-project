@@ -14,6 +14,7 @@ public class GestionTelas {
     private ArrayList<Tela> telas;
     private int siguienteId = 1;
     private ArchivoTelas archivo;
+    private boolean cambiosPendientes = false;
 
     public GestionTelas() throws IOException {
 
@@ -52,6 +53,7 @@ public class GestionTelas {
 
         telas.add(nuevaTela);
         siguienteId++;
+        cambiosPendientes = true;
     }
 
     public Tela buscarTelaPorId(int idTela) {
@@ -78,6 +80,7 @@ public class GestionTelas {
         }
 
         tela1.actualizarDatos(codigo, nombre, descipcion);
+        cambiosPendientes = true;
     }
 
     public void eliminar(int idTela) {
@@ -88,6 +91,7 @@ public class GestionTelas {
                     + "ingresado no existe");
         }
         telas.remove(tela);
+        cambiosPendientes = true;
     }
 
     public ArrayList<Tela> listar() {
@@ -125,11 +129,18 @@ public class GestionTelas {
 
         siguienteId = mayorId + 1;
     }
-    
-    public void guardarCambios()throws IOException{
+
+    public void guardarCambios() throws IOException {
+
         archivo.guardar(telas);
+        cambiosPendientes = false;
+    }
+
+    public boolean hayCambiosPendientes() {
+
+        return cambiosPendientes;
     }
     
     
-
+    
 }

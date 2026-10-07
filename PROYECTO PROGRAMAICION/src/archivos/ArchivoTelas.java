@@ -16,6 +16,12 @@ public class ArchivoTelas {
 
         ArrayList<Tela> telasCargadas = new ArrayList<>();
 
+        Files.createDirectories(ruta.getParent());
+
+        if (!Files.exists(ruta)) {
+            return telasCargadas;
+        }
+
         List<String> lineas = Files.readAllLines(
                 ruta,
                 StandardCharsets.UTF_8
@@ -64,20 +70,18 @@ public class ArchivoTelas {
 
     public void guardar(ArrayList<Tela> telas) throws IOException {
 
+        Files.createDirectories(ruta.getParent());
+
         ArrayList<String> lineas = new ArrayList<>();
 
         for (Tela tela : telas) {
 
-            String linea = tela.getIdTela()
-                    + ";" + tela.getCodigo()
-                    + ";" + tela.getNombre()
-                    + ";" + tela.getDescripcion();
+            String linea = tela.getIdTela() + ";" + tela.getCodigo() + ";" + tela.getNombre() + ";" + tela.getDescripcion();
 
             lineas.add(linea);
         }
-        
+
         Files.write(ruta, lineas, StandardCharsets.UTF_8);
     }
-    
-    
+
 }

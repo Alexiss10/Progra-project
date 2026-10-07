@@ -17,16 +17,23 @@ public class gestionProduccion {
     private int siguienteId = 1;
     private GestionTelas gestionTelas;
     private ArchivoProduccion archivo;
+    private boolean cambiosPendientes = false;
 
-    public gestionProduccion(GestionTelas gestionTelas) {
+    public gestionProduccion(GestionTelas gestionTelas, ArrayList<Turno> turnos) throws IOException {
 
         if (gestionTelas == null) {
-            throw new IllegalArgumentException("Debes proporcionar "
-                    + "la gestión de telas.");
+            throw new IllegalArgumentException("Debes proporcionar la gestión de telas.");
         }
+
+        if (turnos == null) {
+            throw new IllegalArgumentException("Debes proporcionar la lista de turnos.");
+        }
+
         this.gestionTelas = gestionTelas;
         producciones = new ArrayList<>();
         archivo = new ArchivoProduccion();
+
+        cargarProducciones(turnos);
     }
 
     public Produccion buscarPorId(int idProduccion) {
@@ -55,6 +62,7 @@ public class gestionProduccion {
 
         producciones.add(nuevaProduccion);
         siguienteId++;
+        cambiosPendientes = true;
     }
 
     public void modificar(int idProduccion, LocalDate fecha,
@@ -74,6 +82,7 @@ public class gestionProduccion {
                     + "está registrada.");
         }
         produccion.actualizarDatos(fecha, cantidadProducida, hora, tela, turno);
+        cambiosPendientes = true;
     }
 
     public void eliminar(int idProduccion) {
@@ -86,6 +95,7 @@ public class gestionProduccion {
         }
 
         producciones.remove(produccion);
+        cambiosPendientes = true;
     }
 
     public ArrayList<Produccion> listar() {
@@ -114,21 +124,57 @@ public class gestionProduccion {
     }
 
     public void guardarCambios() throws IOException {
+
         archivo.guardar(producciones);
+        cambiosPendientes = false;
     }
 
-    private Turno buscarTurnoPorId(int idTurno,
-            ArrayList<Turno> turnos) {
+    public boolean hayCambiosPendientes() {
 
-        for (Turno turno : turnos) {
+        return cambiosPendientes;
+    }
 
-            if (turno.getIdTurno() == idTurno) {
-                return turno;
+
+    public boolean tieneProduccionesDeTela(int idTela) {
+
+        for (Produccion produccion : producciones) {
+
+            if (produccion.getTela().getIdTela() == idTela) {
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
-    
-    
+
+    public boolean tieneProduccionesDeTurno(int idTurno) {
+
+        for (Produccion produccion : producciones) {
+
+            if (produccion.getTurno().getIdTurno() == idTurno) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void cargarProducciones(ArrayList<Turno> turnos) throws IOException {
+
+        ArrayList<Produccion> produccionesCargadas = archivo.cargar(gestionTelas, turnos);
+
+        int mayorId = 0;
+
+        for (Produccion produccion : produccionesCargadas) {
+
+            if (produccion.getIdProduccion() > mayorId) {
+                mayorId = produccion.getIdProduccion();
+            }
+        }
+
+        producciones = produccionesCargadas;
+        siguienteId = mayorId + 1;
+        cambiosPendientes = false;
+    }
+
 }
