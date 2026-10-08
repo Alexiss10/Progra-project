@@ -15,6 +15,7 @@ public class GestionTelas {
     private int siguienteId = 1;
     private ArchivoTelas archivo;
     private boolean cambiosPendientes = false;
+    private gestionProduccion gestorProduccion;
 
     public GestionTelas() throws IOException {
 
@@ -86,10 +87,19 @@ public class GestionTelas {
     public void eliminar(int idTela) {
 
         Tela tela = buscarTelaPorId(idTela);
+
         if (tela == null) {
-            throw new IllegalArgumentException("El identificador de la tela "
-                    + "ingresado no existe");
+            throw new IllegalArgumentException("El identificador de la tela ingresado no existe.");
         }
+
+        if (gestorProduccion == null) {
+            throw new IllegalArgumentException("Debes cargar la gestión de producción antes de eliminar telas.");
+        }
+
+        if (gestorProduccion.tieneProduccionesDeTela(idTela)) {
+            throw new IllegalArgumentException("No puedes eliminar esta tela porque tiene registros de producción asociados.");
+        }
+
         telas.remove(tela);
         cambiosPendientes = true;
     }
@@ -140,7 +150,14 @@ public class GestionTelas {
 
         return cambiosPendientes;
     }
-    
-    
-    
+
+    public void vincularProduccion(gestionProduccion gestorProduccion) {
+
+        if (gestorProduccion == null) {
+            throw new IllegalArgumentException("Debes proporcionar la gestión de producción.");
+        }
+
+        this.gestorProduccion = gestorProduccion;
+    }
+
 }

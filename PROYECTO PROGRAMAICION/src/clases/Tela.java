@@ -40,10 +40,10 @@ public class Tela {
         String codigoValido = validarTexto(codigo, "codigo");
         String nombreValido = validarTexto(nombre, "nombre");
         String descripcionValida = validarTexto(descripcion, "descripcion");
-        
+
         this.codigo = codigoValido;
         this.nombre = nombreValido;
-        this.descripcion = descripcionValida;     
+        this.descripcion = descripcionValida;
     }
 
     public int getIdTela() {
@@ -72,6 +72,11 @@ public class Tela {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = validarTexto(descripcion, "descripcion");
+    }
+
+    @Override
+    public String toString() {
+        return codigo + " - " + nombre;
     }
 
 }
