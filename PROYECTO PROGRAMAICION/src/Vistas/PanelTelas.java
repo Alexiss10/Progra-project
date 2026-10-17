@@ -19,6 +19,7 @@ public class PanelTelas extends javax.swing.JPanel {
     private GestionTelas gestorTelas;
     private DefaultTableModel modeloTabla;
     private Integer idTelaSeleccionada = null;
+    private Runnable accionGuardar;
 
     /**
      * Creates new form PanelTelas
@@ -57,6 +58,15 @@ public class PanelTelas extends javax.swing.JPanel {
 
         tblTelas.clearSelection();
         txtCodigo.requestFocusInWindow();
+    }
+
+    public void configurarGuardado(Runnable accionGuardar) {
+
+        if (accionGuardar == null) {
+            throw new IllegalArgumentException("Debes proporcionar la acción de guardado.");
+        }
+
+        this.accionGuardar = accionGuardar;
     }
 
     /**
@@ -259,7 +269,7 @@ public class PanelTelas extends javax.swing.JPanel {
 
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
         if (idTelaSeleccionada == null) {
-            JOptionPane.showMessageDialog(this, "Primero busca o selecciona la tela que deseas modificar.");    
+            JOptionPane.showMessageDialog(this, "Primero busca o selecciona la tela que deseas modificar.");
             return;
         }
 
@@ -302,21 +312,12 @@ public class PanelTelas extends javax.swing.JPanel {
     }//GEN-LAST:event_btnEliminarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        if (!gestorTelas.hayCambiosPendientes()) {
-            JOptionPane.showMessageDialog(this, "No hay cambios pendientes para guardar.");
+        if (accionGuardar == null) {
+            JOptionPane.showMessageDialog(this, "El guardado general todavía no está conectado.");
             return;
         }
 
-        try {
-            gestorTelas.guardarCambios();
-
-            JOptionPane.showMessageDialog(this, "Cambios guardados correctamente.");
-
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "No se pudieron guardar los cambios: " + ex.getMessage(), "Error de guardado", JOptionPane.ERROR_MESSAGE);
-        }
-
-
+        accionGuardar.run();
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void tblTelasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTelasMouseClicked

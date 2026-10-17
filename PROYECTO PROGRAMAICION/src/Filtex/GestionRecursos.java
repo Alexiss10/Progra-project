@@ -11,11 +11,16 @@ public class GestionRecursos {
     private boolean cambiosPendientes = false;
 
     public GestionRecursos() throws IOException {
+
+        GuardadoRecursos.recuperarPendiente();
+
         int mayorId = 0;
+
         for (Recurso r : archivo.cargar()) {
             recursos.add(r);
             mayorId = Math.max(mayorId, r.getIdRecurso());
         }
+
         siguienteId = mayorId + 1;
     }
 
@@ -49,7 +54,9 @@ public class GestionRecursos {
         return new ArrayList<>(recursos);
     }
 
-    /** Lo usa GestionUsoRecursos cuando descuenta existencia. */
+    /**
+     * Lo usa GestionUsoRecursos cuando descuenta existencia.
+     */
     void marcarCambios() {
         cambiosPendientes = true;
     }
@@ -61,5 +68,9 @@ public class GestionRecursos {
 
     public boolean hayCambiosPendientes() {
         return cambiosPendientes;
+    }
+
+    void confirmarGuardado() {
+        cambiosPendientes = false;
     }
 }

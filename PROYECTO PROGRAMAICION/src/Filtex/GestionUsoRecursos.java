@@ -59,7 +59,9 @@ public class GestionUsoRecursos {
         return new ArrayList<>(usos);
     }
 
-    /** F8: lo usa Alexis para impedir borrar producciones con usos asociados. */
+    /**
+     * F8: lo usa Alexis para impedir borrar producciones con usos asociados.
+     */
     public boolean tieneUsosDeProduccion(int idProduccion) {
         for (UsoRecurso u : usos) {
             if (u.getProduccion().getIdProduccion() == idProduccion) {
@@ -69,10 +71,14 @@ public class GestionUsoRecursos {
         return false;
     }
 
-    /** Guarda existencias e historial juntos para que no queden inconsistentes. */
+    /**
+     * Guarda existencias e historial juntos para que no queden inconsistentes.
+     */
     public void guardarCambios() throws IOException {
-        gestionRecursos.guardarCambios();
-        archivo.guardar(usos);
+
+        GuardadoRecursos.guardar(gestionRecursos.listar(), usos);
+
+        gestionRecursos.confirmarGuardado();
         cambiosPendientes = false;
     }
 

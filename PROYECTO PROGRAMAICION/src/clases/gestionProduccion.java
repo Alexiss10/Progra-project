@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import Filtex.Turno;
 import archivos.ArchivoProduccion;
 import java.io.IOException;
+import Filtex.GestionUsoRecursos;
 
 /**
  *
@@ -18,6 +19,7 @@ public class gestionProduccion {
     private GestionTelas gestionTelas;
     private ArchivoProduccion archivo;
     private boolean cambiosPendientes = false;
+    private GestionUsoRecursos gestionUsos;
 
     public gestionProduccion(GestionTelas gestionTelas, ArrayList<Turno> turnos) throws IOException {
 
@@ -91,8 +93,15 @@ public class gestionProduccion {
         Produccion produccion = buscarPorId(idProduccion);
 
         if (produccion == null) {
-            throw new IllegalArgumentException("El registro de "
-                    + "producción que deseas eliminar no existe.");
+            throw new IllegalArgumentException("El registro de producción que deseas eliminar no existe.");
+        }
+
+        if (gestionUsos == null) {
+            throw new IllegalArgumentException("Debes cargar la gestión de usos de recursos antes de eliminar producciones.");
+        }
+
+        if (gestionUsos.tieneUsosDeProduccion(idProduccion)) {
+            throw new IllegalArgumentException("No puedes eliminar esta producción porque tiene usos de recursos asociados.");
         }
 
         producciones.remove(produccion);
@@ -325,7 +334,14 @@ public class gestionProduccion {
         siguienteId = mayorId + 1;
         cambiosPendientes = false;
     }
-    
-    
+
+    public void vincularUsos(GestionUsoRecursos gestionUsos) {
+
+        if (gestionUsos == null) {
+            throw new IllegalArgumentException("Debes proporcionar la gestión de usos de recursos.");
+        }
+
+        this.gestionUsos = gestionUsos;
+    }
 
 }

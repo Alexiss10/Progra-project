@@ -28,6 +28,7 @@ public class PanelProduccion extends javax.swing.JPanel {
     private ArrayList<Turno> turnos;
     private DefaultTableModel modeloTabla;
     private Integer idProduccionSeleccionada = null;
+    private Runnable accionGuardar;
 
     public PanelProduccion(gestionProduccion gestorProduccion, GestionTelas gestorTelas, ArrayList<Turno> turnos) {
 
@@ -102,6 +103,15 @@ public class PanelProduccion extends javax.swing.JPanel {
 
         tblProduccion.clearSelection();
         txtFecha.requestFocusInWindow();
+    }
+
+    public void configurarGuardado(Runnable accionGuardar) {
+
+        if (accionGuardar == null) {
+            throw new IllegalArgumentException("Debes proporcionar la acción de guardado.");
+        }
+
+        this.accionGuardar = accionGuardar;
     }
 
     private void guardarRegistro(boolean modificar) {
@@ -243,21 +253,12 @@ public class PanelProduccion extends javax.swing.JPanel {
 
     private void guardarCambios() {
 
-        if (!gestorProduccion.hayCambiosPendientes()) {
-            JOptionPane.showMessageDialog(this, "No hay cambios pendientes para guardar.");
+        if (accionGuardar == null) {
+            JOptionPane.showMessageDialog(this, "El guardado general todavía no está conectado.");
             return;
         }
 
-        try {
-            // Las telas deben estar guardadas antes que las producciones.
-            gestorTelas.guardarCambios();
-            gestorProduccion.guardarCambios();
-
-            JOptionPane.showMessageDialog(this, "Cambios guardados correctamente.");
-
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "No se pudo completar el guardado: " + ex.getMessage(), "Error de guardado", JOptionPane.ERROR_MESSAGE);
-        }
+        accionGuardar.run();
     }
 
     /**
