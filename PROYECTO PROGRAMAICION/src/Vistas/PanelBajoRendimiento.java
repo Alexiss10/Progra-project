@@ -5,9 +5,10 @@
 package Vistas;
 
 import clases.gestionProduccion;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Locale;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -26,15 +27,31 @@ public class PanelBajoRendimiento extends javax.swing.JPanel {
     public PanelBajoRendimiento(gestionProduccion gestorProduccion) {
 
         if (gestorProduccion == null) {
-            throw new IllegalArgumentException("Debes proporcionar la gestión de producción.");
+            throw new IllegalArgumentException(
+                    "Debes proporcionar la gestión de producción."
+            );
         }
 
         initComponents();
+        configurarCalendario();
 
         this.gestorProduccion = gestorProduccion;
+
         modeloTabla = (DefaultTableModel) tblBajoRendimiento.getModel();
 
         limpiarCampos();
+    }
+
+    private void configurarCalendario() {
+
+        DatePickerSettings configuracion
+                = new DatePickerSettings(Locale.forLanguageTag("es-GT"));
+
+        configuracion.setFormatForDatesCommonEra("dd/MM/uuuu");
+        configuracion.setAllowKeyboardEditing(false);
+        configuracion.setAllowEmptyDates(true);
+
+        dpFecha.setSettings(configuracion);
     }
 
     private void consultarBajoRendimiento() {
@@ -43,34 +60,63 @@ public class PanelBajoRendimiento extends javax.swing.JPanel {
         lblResultado.setText("Horas con bajo rendimiento: —");
 
         try {
-            String textoFecha = txtFecha.getText().trim();
-            String textoMeta = txtMetaPorHora.getText().trim();
 
-            if (textoFecha.isEmpty() || textoMeta.isEmpty()) {
-                throw new IllegalArgumentException("Debes ingresar la fecha y la meta por hora.");
+            LocalDate fecha = dpFecha.getDate();
+
+            if (fecha == null) {
+                throw new IllegalArgumentException(
+                        "Debes seleccionar la fecha que deseas consultar."
+                );
             }
 
-            LocalDate fecha = LocalDate.parse(textoFecha);
+            String textoMeta = txtMetaPorHora.getText().trim();
+
+            if (textoMeta.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Debes ingresar la meta por hora."
+                );
+            }
+
             int metaPorHora = Integer.parseInt(textoMeta);
 
             if (metaPorHora <= 0) {
-                throw new IllegalArgumentException("La meta por hora debe ser mayor a cero.");
+                throw new IllegalArgumentException(
+                        "La meta por hora debe ser mayor a cero."
+                );
             }
 
             if (gestorProduccion.buscarPorFecha(fecha).isEmpty()) {
-                lblResultado.setText("Sin registros para la fecha consultada.");
-                JOptionPane.showMessageDialog(this, "No hay registros de producción para esa fecha.");
+
+                lblResultado.setText(
+                        "Sin registros para la fecha consultada."
+                );
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No hay registros de producción para esa fecha."
+                );
+
                 return;
             }
 
-            ArrayList<Integer> horas = gestorProduccion.identificarHorasBajoRendimiento(fecha, metaPorHora);
+            ArrayList<Integer> horas
+                    = gestorProduccion.identificarHorasBajoRendimiento(
+                            fecha, metaPorHora
+                    );
 
             for (int hora : horas) {
 
-                int total = gestorProduccion.calcularTotalPorHora(fecha, hora);
+                int total = gestorProduccion.calcularTotalPorHora(
+                        fecha, hora
+                );
+
                 int faltante = metaPorHora - total;
 
-                String intervalo = String.format("%02d:00 - %02d:00", hora, hora + 1);
+                String intervalo = String.format(
+                        "%02d:00 - %02d:00",
+                        hora,
+                        hora + 1
+                );
 
                 modeloTabla.addRow(new Object[]{
                     intervalo,
@@ -81,31 +127,47 @@ public class PanelBajoRendimiento extends javax.swing.JPanel {
             }
 
             if (horas.isEmpty()) {
-                lblResultado.setText("Ninguna hora registrada está por debajo de la meta.");
+
+                lblResultado.setText(
+                        "Ninguna hora registrada está por debajo de la meta."
+                );
+
             } else {
-                lblResultado.setText("Horas con bajo rendimiento: " + horas.size());
+
+                lblResultado.setText(
+                        "Horas con bajo rendimiento: " + horas.size()
+                );
             }
 
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this, "Ingresa una fecha válida en formato AAAA-MM-DD.", "Fecha incorrecta", JOptionPane.WARNING_MESSAGE);
-
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "La meta debe ser un número entero dentro del rango permitido.", "Meta incorrecta", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "La meta debe ser un número entero dentro del rango permitido.",
+                    "Meta incorrecta",
+                    JOptionPane.WARNING_MESSAGE
+            );
 
         } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo consultar", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "No se pudo consultar",
+                    JOptionPane.WARNING_MESSAGE
+            );
         }
     }
 
     private void limpiarCampos() {
 
-        txtFecha.setText("");
+        dpFecha.clear();
         txtMetaPorHora.setText("100");
 
         modeloTabla.setRowCount(0);
         lblResultado.setText("Horas con bajo rendimiento: —");
 
-        txtFecha.requestFocusInWindow();
+        dpFecha.getComponentDateTextField().requestFocusInWindow();
     }
 
     public void actualizarPanel() {
@@ -123,7 +185,6 @@ public class PanelBajoRendimiento extends javax.swing.JPanel {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        txtFecha = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         txtMetaPorHora = new javax.swing.JTextField();
         btnConsultar = new javax.swing.JButton();
@@ -132,8 +193,9 @@ public class PanelBajoRendimiento extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblBajoRendimiento = new javax.swing.JTable();
+        dpFecha = new com.github.lgooddatepicker.components.DatePicker();
 
-        jLabel1.setText("Fecha (AAAA-MM-DD)");
+        jLabel1.setText("Fecha:");
 
         jLabel2.setText("Meta por hora:");
 
@@ -184,18 +246,18 @@ public class PanelBajoRendimiento extends javax.swing.JPanel {
                     .addComponent(jLabel3)
                     .addComponent(lblResultado)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnConsultar)
+                        .addComponent(btnConsultar, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(btnLimpiar))
+                        .addComponent(btnLimpiar, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jLabel2)
                         .addGap(34, 34, 34)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtFecha)
-                            .addComponent(txtMetaPorHora, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE))))
-                .addContainerGap(175, Short.MAX_VALUE))
+                        .addComponent(txtMetaPorHora, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(dpFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(196, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addGap(17, 17, 17)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -204,10 +266,10 @@ public class PanelBajoRendimiento extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dpFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -238,13 +300,13 @@ public class PanelBajoRendimiento extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConsultar;
     private javax.swing.JButton btnLimpiar;
+    private com.github.lgooddatepicker.components.DatePicker dpFecha;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblResultado;
     private javax.swing.JTable tblBajoRendimiento;
-    private javax.swing.JTextField txtFecha;
     private javax.swing.JTextField txtMetaPorHora;
     // End of variables declaration//GEN-END:variables
 

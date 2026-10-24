@@ -26,7 +26,7 @@ public class GuardadoRecursos {
     public static void guardar(List<Recurso> recursos,
             List<UsoRecurso> usos) throws IOException {
 
-        // Resuelve primero cualquier guardado anterior incompleto.
+
         recuperarPendiente();
 
         crearRespaldo();
@@ -78,7 +78,7 @@ public class GuardadoRecursos {
             agregarAlRespaldo(salida, USOS);
         }
 
-        // Publica el respaldo únicamente cuando está completo.
+ 
         Files.move(
                 temporal,
                 RESPALDO,
@@ -109,7 +109,7 @@ public class GuardadoRecursos {
         byte[] recursos;
         byte[] usos;
 
-        // Lee el respaldo completo antes de restaurar los archivos.
+
         try (ZipFile zip = new ZipFile(RESPALDO.toFile())) {
 
             recursos = leerEntrada(zip, RECURSOS);
@@ -142,7 +142,7 @@ public class GuardadoRecursos {
 
         Path ruta = CARPETA.resolve(nombre);
 
-        // Si antes no existía, vuelve a dejarlo sin crear.
+
         if (contenido == null) {
             Files.deleteIfExists(ruta);
             return;

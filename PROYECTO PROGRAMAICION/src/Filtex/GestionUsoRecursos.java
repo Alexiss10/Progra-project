@@ -23,7 +23,7 @@ public class GestionUsoRecursos {
         this.gestionRecursos = gestionRecursos;
         this.produccion = produccion;
 
-        // Se carga el historial sin tocar las existencias (ya vienen descontadas).
+
         usos = archivo.cargar(gestionRecursos, produccion);
         int mayorId = 0;
         for (UsoRecurso u : usos) {
@@ -44,7 +44,7 @@ public class GestionUsoRecursos {
             throw new IllegalArgumentException("El registro de producción seleccionado no existe.");
         }
 
-        // Primero se validan los datos; el descuento es lo último que puede fallar.
+
         UsoRecurso uso = new UsoRecurso(siguienteId, recurso, prod, fecha, cantidad);
         recurso.descontar(cantidad);
 
@@ -59,9 +59,7 @@ public class GestionUsoRecursos {
         return new ArrayList<>(usos);
     }
 
-    /**
-     * F8: lo usa Alexis para impedir borrar producciones con usos asociados.
-     */
+
     public boolean tieneUsosDeProduccion(int idProduccion) {
         for (UsoRecurso u : usos) {
             if (u.getProduccion().getIdProduccion() == idProduccion) {
@@ -71,9 +69,7 @@ public class GestionUsoRecursos {
         return false;
     }
 
-    /**
-     * Guarda existencias e historial juntos para que no queden inconsistentes.
-     */
+
     public void guardarCambios() throws IOException {
 
         GuardadoRecursos.guardar(gestionRecursos.listar(), usos);
