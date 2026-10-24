@@ -6,10 +6,14 @@ import Filtex.GestionTurnos;
 import Filtex.GestionUsoRecursos;
 import Filtex.VentanaPrincipal;
 
+import seguridad.GestionAcceso;
+import Vistas.DialogoAcceso;
+
 import clases.GestionTelas;
 import clases.gestionProduccion;
 
 import java.io.IOException;
+
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -17,34 +21,74 @@ public class Main {
 
     public static void main(String[] args) {
 
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(Main::iniciar);
+    }
 
-            try {
-                GestionTelas telas = new GestionTelas();
-                GestionTurnos turnos = new GestionTurnos();
+    private static void iniciar() {
 
-                GestionTrabajadores trabajadores = new GestionTrabajadores(turnos);
+        GestionAcceso acceso = null;
 
-                gestionProduccion produccion = new gestionProduccion(telas, turnos.listar());
-                turnos.setGestionProduccion(produccion);
+        try {
 
-                GestionRecursos recursos = new GestionRecursos();
+            acceso = new GestionAcceso();
 
-                GestionUsoRecursos usos = new GestionUsoRecursos(recursos, produccion);
+            DialogoAcceso dialogo = new DialogoAcceso(null, acceso);
+            dialogo.setVisible(true);
 
-                produccion.vincularUsos(usos);
 
-                new VentanaPrincipal(telas, turnos, trabajadores, produccion, recursos, usos).setVisible(true);
-
-            } catch (IOException ex) {
-
-                JOptionPane.showMessageDialog(
-                        null,
-                        "No se pudieron cargar los datos:\n" + ex.getMessage(),
-                        "Error al iniciar FILTEX",
-                        JOptionPane.ERROR_MESSAGE
-                );
+            if (!acceso.haySesionActiva()) {
+                return;
             }
-        });
+
+            
+            GestionTelas telas = new GestionTelas();
+
+            GestionTurnos turnos = new GestionTurnos();
+
+            GestionTrabajadores trabajadores
+                    = new GestionTrabajadores(turnos);
+
+            gestionProduccion produccion = new gestionProduccion(
+                    telas,
+                    turnos.listar()
+            );
+
+            turnos.setGestionProduccion(produccion);
+
+            GestionRecursos recursos = new GestionRecursos();
+
+            GestionUsoRecursos usos = new GestionUsoRecursos(
+                    recursos,
+                    produccion
+            );
+
+            produccion.vincularUsos(usos);
+
+            VentanaPrincipal ventana = new VentanaPrincipal(
+                    telas,
+                    turnos,
+                    trabajadores,
+                    produccion,
+                    recursos,
+                    usos,
+                    acceso,
+                    Main::iniciar
+            );
+
+            ventana.setVisible(true);
+
+        } catch (IOException | IllegalArgumentException ex) {
+
+            if (acceso != null) {
+                acceso.cerrarSesion();
+            }
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    "No se pudo iniciar FILTEX:\n" + ex.getMessage(),
+                    "Error al iniciar FILTEX",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }

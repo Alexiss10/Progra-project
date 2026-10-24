@@ -9,6 +9,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 public final class SeguridadClave {
 
+    // El formato v1 utiliza estos parámetros.
     private static final int ITERACIONES = 600_000;
     private static final int LONGITUD_SAL = 16;
     private static final int LONGITUD_HASH = 256;
@@ -18,7 +19,9 @@ public final class SeguridadClave {
     private SeguridadClave() {
     }
 
-
+    /**
+     * Genera el texto que se guardará para comprobar la contraseña.
+     */
     public static String crearHash(char[] clave) {
 
         if (clave == null || clave.length == 0) {
@@ -38,7 +41,9 @@ public final class SeguridadClave {
                 + Base64.getEncoder().encodeToString(hash);
     }
 
-
+    /**
+     * Comprueba si la contraseña ingresada corresponde al hash guardado.
+     */
     public static boolean verificar(char[] clave, String hashGuardado) {
 
         if (clave == null || clave.length == 0) {
@@ -88,7 +93,9 @@ public final class SeguridadClave {
         return MessageDigest.isEqual(hashEsperado, hashIngresado);
     }
 
-
+    /**
+     * Calcula el hash mediante PBKDF2.
+     */
     private static byte[] calcularHash(char[] clave, byte[] sal) {
 
         PBEKeySpec especificacion = new PBEKeySpec(
