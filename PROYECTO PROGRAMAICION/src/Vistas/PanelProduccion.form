@@ -35,11 +35,11 @@
                               </Group>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="txtFecha" max="32767" attributes="0"/>
                                   <Component id="txtHora" max="32767" attributes="0"/>
                                   <Component id="txtCantidad" max="32767" attributes="0"/>
-                                  <Component id="cmbTela" max="32767" attributes="0"/>
+                                  <Component id="cmbTela" pref="252" max="32767" attributes="0"/>
                                   <Component id="cmbTurno" min="-2" pref="95" max="-2" attributes="0"/>
+                                  <Component id="dpFecha" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -58,17 +58,17 @@
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace pref="28" max="32767" attributes="0"/>
+              <EmptySpace pref="107" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="txtFecha" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="dpFecha" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -109,11 +109,9 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JTextField" name="txtFecha">
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Fecha (AAAA-MM-DD)"/>
+        <Property name="text" type="java.lang.String" value="Fecha:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
@@ -226,5 +224,7 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="com.github.lgooddatepicker.components.DatePicker" name="dpFecha">
+    </Component>
   </SubComponents>
 </Form>

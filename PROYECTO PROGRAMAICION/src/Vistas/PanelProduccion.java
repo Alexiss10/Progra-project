@@ -16,6 +16,8 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import java.util.Locale;
 
 /**
  *
@@ -37,6 +39,7 @@ public class PanelProduccion extends javax.swing.JPanel {
         }
 
         initComponents();
+        configurarCalendario();
 
         this.gestorProduccion = gestorProduccion;
         this.gestorTelas = gestorTelas;
@@ -64,6 +67,18 @@ public class PanelProduccion extends javax.swing.JPanel {
                 produccion.getTurno().getNombre()
             });
         }
+    }
+
+    private void configurarCalendario() {
+
+        DatePickerSettings configuracion
+                = new DatePickerSettings(Locale.forLanguageTag("es-GT"));
+
+        configuracion.setFormatForDatesCommonEra("dd/MM/uuuu");
+        configuracion.setAllowKeyboardEditing(false);
+        configuracion.setAllowEmptyDates(true);
+
+        dpFecha.setSettings(configuracion);
     }
 
     public void cargarOpciones() {
@@ -94,7 +109,7 @@ public class PanelProduccion extends javax.swing.JPanel {
 
         idProduccionSeleccionada = null;
 
-        txtFecha.setText("");
+        dpFecha.clear();
         txtHora.setText("");
         txtCantidad.setText("");
 
@@ -102,7 +117,7 @@ public class PanelProduccion extends javax.swing.JPanel {
         cmbTurno.setSelectedIndex(-1);
 
         tblProduccion.clearSelection();
-        txtFecha.requestFocusInWindow();
+        dpFecha.getComponentDateTextField().requestFocusInWindow();
     }
 
     public void configurarGuardado(Runnable accionGuardar) {
@@ -117,37 +132,76 @@ public class PanelProduccion extends javax.swing.JPanel {
     private void guardarRegistro(boolean modificar) {
 
         if (modificar && idProduccionSeleccionada == null) {
-            JOptionPane.showMessageDialog(this, "Primero selecciona la producción que deseas modificar.");
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Primero selecciona la producción que deseas modificar."
+            );
+
             return;
         }
 
         try {
-            if (txtFecha.getText().trim().isEmpty()
-                    || txtHora.getText().trim().isEmpty()
+
+            LocalDate fecha = dpFecha.getDate();
+
+            if (fecha == null) {
+                throw new IllegalArgumentException(
+                        "Debes seleccionar la fecha en el calendario."
+                );
+            }
+
+            if (txtHora.getText().trim().isEmpty()
                     || txtCantidad.getText().trim().isEmpty()) {
 
-                throw new IllegalArgumentException("Debes ingresar la fecha, la hora y la cantidad.");
+                throw new IllegalArgumentException(
+                        "Debes ingresar la hora y la cantidad."
+                );
             }
 
             Tela tela = (Tela) cmbTela.getSelectedItem();
             Turno turno = (Turno) cmbTurno.getSelectedItem();
 
             if (tela == null) {
-                throw new IllegalArgumentException("Debes seleccionar una tela.");
+                throw new IllegalArgumentException(
+                        "Debes seleccionar una tela."
+                );
             }
 
             if (turno == null) {
-                throw new IllegalArgumentException("Debes seleccionar un turno.");
+                throw new IllegalArgumentException(
+                        "Debes seleccionar un turno."
+                );
             }
 
-            LocalDate fecha = LocalDate.parse(txtFecha.getText().trim());
-            LocalTime hora = LocalTime.parse(txtHora.getText().trim());
-            int cantidad = Integer.parseInt(txtCantidad.getText().trim());
+            LocalTime hora = LocalTime.parse(
+                    txtHora.getText().trim()
+            );
+
+            int cantidad = Integer.parseInt(
+                    txtCantidad.getText().trim()
+            );
 
             if (modificar) {
-                gestorProduccion.modificar(idProduccionSeleccionada, fecha, cantidad, hora, tela.getIdTela(), turno);
+
+                gestorProduccion.modificar(
+                        idProduccionSeleccionada,
+                        fecha,
+                        cantidad,
+                        hora,
+                        tela.getIdTela(),
+                        turno
+                );
+
             } else {
-                gestorProduccion.registrar(fecha, cantidad, hora, tela.getIdTela(), turno);
+
+                gestorProduccion.registrar(
+                        fecha,
+                        cantidad,
+                        hora,
+                        tela.getIdTela(),
+                        turno
+                );
             }
 
             actualizarTabla();
@@ -161,16 +215,38 @@ public class PanelProduccion extends javax.swing.JPanel {
                 mensaje = "Producción registrada.";
             }
 
-            JOptionPane.showMessageDialog(this, mensaje + " Presiona Guardar para conservar los cambios.");
+            JOptionPane.showMessageDialog(
+                    this,
+                    mensaje
+                    + " Presiona Guardar para conservar los cambios."
+            );
 
         } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this, "Ingresa una fecha válida en formato AAAA-MM-DD y una hora válida en formato HH:mm.", "Datos incorrectos", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ingresa una hora válida en formato HH:mm.",
+                    "Hora incorrecta",
+                    JOptionPane.WARNING_MESSAGE
+            );
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "La cantidad debe ser un número entero dentro del rango permitido.", "Cantidad incorrecta", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "La cantidad debe ser un número entero dentro del rango permitido.",
+                    "Cantidad incorrecta",
+                    JOptionPane.WARNING_MESSAGE
+            );
 
         } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo completar la operación", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "No se pudo completar la operación",
+                    JOptionPane.WARNING_MESSAGE
+            );
         }
     }
 
@@ -196,7 +272,7 @@ public class PanelProduccion extends javax.swing.JPanel {
 
         idProduccionSeleccionada = produccion.getIdProduccion();
 
-        txtFecha.setText(produccion.getFecha().toString());
+        dpFecha.setDate(produccion.getFecha());
         txtHora.setText(produccion.getHora().toString());
         txtCantidad.setText(String.valueOf(produccion.getCantProducida()));
 
@@ -270,7 +346,6 @@ public class PanelProduccion extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        txtFecha = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -287,8 +362,9 @@ public class PanelProduccion extends javax.swing.JPanel {
         btnGuardar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblProduccion = new javax.swing.JTable();
+        dpFecha = new com.github.lgooddatepicker.components.DatePicker();
 
-        jLabel1.setText("Fecha (AAAA-MM-DD)");
+        jLabel1.setText("Fecha:");
 
         jLabel2.setText("Hora (HH:mm)");
 
@@ -364,11 +440,11 @@ public class PanelProduccion extends javax.swing.JPanel {
                                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtFecha)
                                     .addComponent(txtHora)
                                     .addComponent(txtCantidad)
-                                    .addComponent(cmbTela, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(cmbTurno, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(cmbTela, 0, 252, Short.MAX_VALUE)
+                                    .addComponent(cmbTurno, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(dpFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(btnLimpiar)
@@ -379,15 +455,15 @@ public class PanelProduccion extends javax.swing.JPanel {
                                     .addComponent(btnGuardar))
                                 .addGap(18, 18, 18)
                                 .addComponent(btnEliminar)))))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(107, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(17, 17, 17)
+                .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(jLabel1)
+                    .addComponent(dpFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -452,6 +528,7 @@ public class PanelProduccion extends javax.swing.JPanel {
     private javax.swing.JButton btnrRegistrar;
     private javax.swing.JComboBox<Tela> cmbTela;
     private javax.swing.JComboBox<Turno> cmbTurno;
+    private com.github.lgooddatepicker.components.DatePicker dpFecha;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -460,7 +537,6 @@ public class PanelProduccion extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblProduccion;
     private javax.swing.JTextField txtCantidad;
-    private javax.swing.JTextField txtFecha;
     private javax.swing.JTextField txtHora;
     // End of variables declaration//GEN-END:variables
 }

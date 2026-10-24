@@ -22,7 +22,7 @@
                   <Group type="102" attributes="0">
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="txtFecha" min="-2" max="-2" attributes="0"/>
+                      <Component id="dpFecha" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -33,7 +33,7 @@
                       <Component id="btnLimpiar" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="191" max="32767" attributes="0"/>
           </Group>
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace pref="19" max="32767" attributes="0"/>
@@ -45,10 +45,10 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="txtFecha" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="dpFecha" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -67,10 +67,8 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Fecha (AAAA-MM-DD)"/>
+        <Property name="text" type="java.lang.String" value="Fecha:"/>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JTextField" name="txtFecha">
     </Component>
     <Component class="javax.swing.JButton" name="btbConsultar">
       <Properties>
@@ -115,5 +113,7 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="com.github.lgooddatepicker.components.DatePicker" name="dpFecha">
+    </Component>
   </SubComponents>
 </Form>

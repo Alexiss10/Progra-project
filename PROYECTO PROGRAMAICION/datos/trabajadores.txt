@@ -1,0 +1,3 @@
+1;Juan;123456;Jefe;Mercadeo
+2;Francisco;838393;gerente;admin
+3;999;9;1;f

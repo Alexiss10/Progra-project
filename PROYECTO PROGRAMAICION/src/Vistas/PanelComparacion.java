@@ -5,8 +5,9 @@
 package Vistas;
 
 import clases.gestionProduccion;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import javax.swing.JOptionPane;
 
 /**
@@ -23,14 +24,29 @@ public class PanelComparacion extends javax.swing.JPanel {
     public PanelComparacion(gestionProduccion gestorProduccion) {
 
         if (gestorProduccion == null) {
-            throw new IllegalArgumentException("Debes proporcionar la gestión de producción.");
+            throw new IllegalArgumentException(
+                    "Debes proporcionar la gestión de producción."
+            );
         }
 
         initComponents();
+        configurarCalendario();
 
         this.gestorProduccion = gestorProduccion;
 
         limpiarCampos();
+    }
+
+    private void configurarCalendario() {
+
+        DatePickerSettings configuracion
+                = new DatePickerSettings(Locale.forLanguageTag("es-GT"));
+
+        configuracion.setFormatForDatesCommonEra("dd/MM/uuuu");
+        configuracion.setAllowKeyboardEditing(false);
+        configuracion.setAllowEmptyDates(true);
+
+        dpFecha.setSettings(configuracion);
     }
 
     private void compararProduccion() {
@@ -38,45 +54,99 @@ public class PanelComparacion extends javax.swing.JPanel {
         limpiarResultados();
 
         try {
-            String textoFecha = txtFecha.getText().trim();
-            String textoMeta = txtMetaDiaria.getText().trim();
 
-            if (textoFecha.isEmpty() || textoMeta.isEmpty()) {
-                throw new IllegalArgumentException("Debes ingresar la fecha y la meta diaria.");
+            LocalDate fecha = dpFecha.getDate();
+
+            if (fecha == null) {
+                throw new IllegalArgumentException(
+                        "Debes seleccionar la fecha que deseas comparar."
+                );
             }
 
-            LocalDate fecha = LocalDate.parse(textoFecha);
+            String textoMeta = txtMetaDiaria.getText().trim();
+
+            if (textoMeta.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Debes ingresar la meta diaria."
+                );
+            }
+
             int metaDiaria = Integer.parseInt(textoMeta);
 
             if (metaDiaria <= 0) {
-                throw new IllegalArgumentException("La meta diaria debe ser mayor a cero.");
+                throw new IllegalArgumentException(
+                        "La meta diaria debe ser mayor a cero."
+                );
             }
 
             if (gestorProduccion.buscarPorFecha(fecha).isEmpty()) {
-                lblEstado.setText("Estado: sin registros para esa fecha.");
-                JOptionPane.showMessageDialog(this, "No hay registros de producción para comparar en esa fecha.");
+
+                lblEstado.setText(
+                        "Estado: sin registros para esa fecha."
+                );
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No hay registros de producción para comparar en esa fecha."
+                );
+
                 return;
             }
 
             int total = gestorProduccion.calcularTotalDiario(fecha);
-            int diferencia = gestorProduccion.calcularDiferenciaDiaria(fecha, metaDiaria);
-            double porcentaje = gestorProduccion.calcularPorcentajeCumplimiento(fecha, metaDiaria);
-            String estado = gestorProduccion.obtenerEstadoProduccion(fecha, metaDiaria);
 
-            lblProduccionReal.setText("Producción real: " + total + " unidades");
-            lblMeta.setText("Meta diaria: " + metaDiaria + " unidades");
-            lblDiferencia.setText("Diferencia (real - meta): " + diferencia + " unidades");
-            lblCumplimiento.setText("Cumplimiento: " + String.format("%.2f", porcentaje) + " %");
-            lblEstado.setText("Estado: " + estado);
+            int diferencia = gestorProduccion.calcularDiferenciaDiaria(
+                    fecha, metaDiaria
+            );
 
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this, "Ingresa una fecha válida en formato AAAA-MM-DD.", "Fecha incorrecta", JOptionPane.WARNING_MESSAGE);
+            double porcentaje
+                    = gestorProduccion.calcularPorcentajeCumplimiento(
+                            fecha, metaDiaria
+                    );
+
+            String estado = gestorProduccion.obtenerEstadoProduccion(
+                    fecha, metaDiaria
+            );
+
+            lblProduccionReal.setText(
+                    "Producción real: " + total + " unidades"
+            );
+
+            lblMeta.setText(
+                    "Meta diaria: " + metaDiaria + " unidades"
+            );
+
+            lblDiferencia.setText(
+                    "Diferencia (real - meta): "
+                    + diferencia + " unidades"
+            );
+
+            lblCumplimiento.setText(
+                    "Cumplimiento: "
+                    + String.format("%.2f", porcentaje) + " %"
+            );
+
+            lblEstado.setText(
+                    "Estado: " + estado
+            );
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "La meta debe ser un número entero dentro del rango permitido.", "Meta incorrecta", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "La meta debe ser un número entero dentro del rango permitido.",
+                    "Meta incorrecta",
+                    JOptionPane.WARNING_MESSAGE
+            );
 
         } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo comparar", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "No se pudo comparar",
+                    JOptionPane.WARNING_MESSAGE
+            );
         }
     }
 
@@ -91,12 +161,12 @@ public class PanelComparacion extends javax.swing.JPanel {
 
     private void limpiarCampos() {
 
-        txtFecha.setText("");
+        dpFecha.clear();
         txtMetaDiaria.setText("2400");
 
         limpiarResultados();
 
-        txtFecha.requestFocusInWindow();
+        dpFecha.getComponentDateTextField().requestFocusInWindow();
     }
 
     public void actualizarPanel() {
@@ -114,7 +184,6 @@ public class PanelComparacion extends javax.swing.JPanel {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        txtFecha = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         txtMetaDiaria = new javax.swing.JTextField();
         btnComprar = new javax.swing.JButton();
@@ -124,16 +193,15 @@ public class PanelComparacion extends javax.swing.JPanel {
         lblDiferencia = new javax.swing.JLabel();
         lblCumplimiento = new javax.swing.JLabel();
         lblEstado = new javax.swing.JLabel();
+        dpFecha = new com.github.lgooddatepicker.components.DatePicker();
 
-        jLabel1.setText("Fecha (AAAA-MM-DD)");
-
-        txtFecha.addActionListener(this::txtFechaActionPerformed);
+        jLabel1.setText("Fecha:");
 
         jLabel2.setText("Meta diaria:");
 
         txtMetaDiaria.setText("2400");
 
-        btnComprar.setText("Comprar");
+        btnComprar.setText("Comparar");
         btnComprar.addActionListener(this::btnComprarActionPerformed);
 
         btnLimpiar.setText("Limpiar");
@@ -168,21 +236,21 @@ public class PanelComparacion extends javax.swing.JPanel {
                             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtMetaDiaria, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
-                            .addComponent(txtFecha)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtMetaDiaria, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dpFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(lblProduccionReal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lblDiferencia, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(86, Short.MAX_VALUE))
+                .addContainerGap(102, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(21, 21, 21)
+                .addGap(23, 23, 23)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dpFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -205,10 +273,6 @@ public class PanelComparacion extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtFechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFechaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtFechaActionPerformed
-
     private void btnComprarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComprarActionPerformed
         compararProduccion();
     }//GEN-LAST:event_btnComprarActionPerformed
@@ -221,6 +285,7 @@ public class PanelComparacion extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnComprar;
     private javax.swing.JButton btnLimpiar;
+    private com.github.lgooddatepicker.components.DatePicker dpFecha;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel lblCumplimiento;
@@ -228,7 +293,6 @@ public class PanelComparacion extends javax.swing.JPanel {
     private javax.swing.JLabel lblEstado;
     private javax.swing.JLabel lblMeta;
     private javax.swing.JLabel lblProduccionReal;
-    private javax.swing.JTextField txtFecha;
     private javax.swing.JTextField txtMetaDiaria;
     // End of variables declaration//GEN-END:variables
 }

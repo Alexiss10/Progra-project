@@ -6,9 +6,11 @@ package Vistas;
 
 import clases.Produccion;
 import clases.gestionProduccion;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Locale;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -27,15 +29,31 @@ public class PanelProduccionDiaria extends javax.swing.JPanel {
     public PanelProduccionDiaria(gestionProduccion gestorProduccion) {
 
         if (gestorProduccion == null) {
-            throw new IllegalArgumentException("Debes proporcionar la gestión de producción.");
+            throw new IllegalArgumentException(
+                    "Debes proporcionar la gestión de producción."
+            );
         }
 
         initComponents();
+        configurarCalendario();
 
         this.gestorProduccion = gestorProduccion;
+
         modeloTabla = (DefaultTableModel) tblProduccionDiaria.getModel();
 
         limpiarCampos();
+    }
+
+    private void configurarCalendario() {
+
+        DatePickerSettings configuracion
+                = new DatePickerSettings(Locale.forLanguageTag("es-GT"));
+
+        configuracion.setFormatForDatesCommonEra("dd/MM/uuuu");
+        configuracion.setAllowKeyboardEditing(false);
+        configuracion.setAllowEmptyDates(true);
+
+        dpFecha.setSettings(configuracion);
     }
 
     private void consultarProduccion() {
@@ -44,19 +62,29 @@ public class PanelProduccionDiaria extends javax.swing.JPanel {
         lblTotal.setText("Total producido: —");
 
         try {
-            String textoFecha = txtFecha.getText().trim();
 
-            if (textoFecha.isEmpty()) {
-                throw new IllegalArgumentException("Debes ingresar la fecha que deseas consultar.");
+            LocalDate fecha = dpFecha.getDate();
+
+            if (fecha == null) {
+                throw new IllegalArgumentException(
+                        "Debes seleccionar la fecha que deseas consultar."
+                );
             }
 
-            LocalDate fecha = LocalDate.parse(textoFecha);
-
-            ArrayList<Produccion> resultados = gestorProduccion.buscarPorFecha(fecha);
+            ArrayList<Produccion> resultados
+                    = gestorProduccion.buscarPorFecha(fecha);
 
             if (resultados.isEmpty()) {
-                lblTotal.setText("Sin registros para la fecha consultada.");
-                JOptionPane.showMessageDialog(this, "No hay registros de producción para esa fecha.");
+
+                lblTotal.setText(
+                        "Sin registros para la fecha consultada."
+                );
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No hay registros de producción para esa fecha."
+                );
+
                 return;
             }
 
@@ -73,29 +101,40 @@ public class PanelProduccionDiaria extends javax.swing.JPanel {
 
             int total = gestorProduccion.calcularTotalDiario(fecha);
 
-            lblTotal.setText("Total producido el " + fecha + ": " + total + " unidades");
+            String fechaFormateada = fecha.format(
+                    DateTimeFormatter.ofPattern("dd/MM/uuuu")
+            );
 
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this, "Ingresa una fecha válida en formato AAAA-MM-DD.", "Fecha incorrecta", JOptionPane.WARNING_MESSAGE);
+            lblTotal.setText(
+                    "Total producido el " + fechaFormateada
+                    + ": " + total + " unidades"
+            );
 
         } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo consultar", JOptionPane.WARNING_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "No se pudo consultar",
+                    JOptionPane.WARNING_MESSAGE
+            );
         }
     }
 
     private void limpiarCampos() {
 
-        txtFecha.setText("");
+        dpFecha.clear();
         modeloTabla.setRowCount(0);
         lblTotal.setText("Total producido: —");
 
-        txtFecha.requestFocusInWindow();
+        dpFecha.getComponentDateTextField().requestFocusInWindow();
     }
 
     public void actualizarPanel() {
 
         limpiarCampos();
     }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -107,14 +146,14 @@ public class PanelProduccionDiaria extends javax.swing.JPanel {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        txtFecha = new javax.swing.JTextField();
         btbConsultar = new javax.swing.JButton();
         btnLimpiar = new javax.swing.JButton();
         lblTotal = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblProduccionDiaria = new javax.swing.JTable();
+        dpFecha = new com.github.lgooddatepicker.components.DatePicker();
 
-        jLabel1.setText("Fecha (AAAA-MM-DD)");
+        jLabel1.setText("Fecha:");
 
         btbConsultar.setText("Consultar");
         btbConsultar.addActionListener(this::btbConsultarActionPerformed);
@@ -159,14 +198,14 @@ public class PanelProduccionDiaria extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addGap(18, 18, 18)
-                        .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(dpFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(lblTotal, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btbConsultar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
                         .addComponent(btnLimpiar)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(191, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(19, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -175,10 +214,10 @@ public class PanelProduccionDiaria extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(33, 33, 33)
+                .addGap(35, 35, 35)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dpFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btbConsultar)
@@ -203,10 +242,10 @@ public class PanelProduccionDiaria extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btbConsultar;
     private javax.swing.JButton btnLimpiar;
+    private com.github.lgooddatepicker.components.DatePicker dpFecha;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblTotal;
     private javax.swing.JTable tblProduccionDiaria;
-    private javax.swing.JTextField txtFecha;
     // End of variables declaration//GEN-END:variables
 }
