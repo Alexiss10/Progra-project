@@ -36,6 +36,7 @@ public class VentanaPrincipal extends JFrame {
     private final gestionProduccion produccion;
     private final GestionRecursos recursos;
     private final GestionUsoRecursos usos;
+    private final GestionMetas metas;
 
     private final GestionAcceso acceso;
     private final Runnable regresarAlAcceso;
@@ -59,6 +60,8 @@ public class VentanaPrincipal extends JFrame {
             gestionProduccion produccion,
             GestionRecursos recursos,
             GestionUsoRecursos usos,
+            GestionMetas metas,
+        GestionReportes reportes, 
             GestionAcceso acceso,
             Runnable regresarAlAcceso) {
 
@@ -82,6 +85,7 @@ public class VentanaPrincipal extends JFrame {
         this.produccion = produccion;
         this.recursos = recursos;
         this.usos = usos;
+        this.metas = metas;  
 
         this.acceso = acceso;
         this.regresarAlAcceso = regresarAlAcceso;
@@ -142,6 +146,21 @@ public class VentanaPrincipal extends JFrame {
                 "Uso de recursos",
                 new PanelUsoRecursos(recursos, produccion, usos)
         );
+        
+        pestanias.addTab(
+        "Disponibilidad de recursos",
+        new PanelDisponibilidadRecursos(recursos)
+);
+
+pestanias.addTab(
+        "Reportes de producción",
+        new PanelReportesProduccion(reportes, metas)
+);
+
+pestanias.addTab(
+        "Reportes de rendimiento",
+        new PanelReportesRendimiento(reportes, metas)
+);
 
         pestanias.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
@@ -227,6 +246,7 @@ public class VentanaPrincipal extends JFrame {
                 || turnos.hayCambiosPendientes()
                 || trabajadores.hayCambiosPendientes()
                 || produccion.hayCambiosPendientes()
+                || metas.hayCambiosPendientes() 
                 || recursos.hayCambiosPendientes()
                 || usos.hayCambiosPendientes();
     }
@@ -247,6 +267,9 @@ public class VentanaPrincipal extends JFrame {
 
             modulo = "producción";
             produccion.guardarCambios();
+            
+            modulo = "metas";
+            metas.guardarCambios(); 
 
 
             modulo = "recursos y utilizaciones";

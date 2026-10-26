@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class GestionAcceso {
 
-    private static final long DURACION_BLOQUEO_MS = 5 * 60 * 1000L;
+    private static final long DURACION_BLOQUEO_MS = 5 * 1 * 1000L;
 
     private final ArchivoUsuario archivo;
     private Usuario propietario;

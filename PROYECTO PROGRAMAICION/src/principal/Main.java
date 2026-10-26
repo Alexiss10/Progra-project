@@ -11,6 +11,8 @@ import Vistas.DialogoAcceso;
 
 import clases.GestionTelas;
 import clases.gestionProduccion;
+import Filtex.GestionMetas;
+import Filtex.GestionReportes;
 
 import java.io.IOException;
 
@@ -63,6 +65,9 @@ public class Main {
             );
 
             produccion.vincularUsos(usos);
+            
+            GestionMetas metas = new GestionMetas();
+            GestionReportes reportes = new GestionReportes(produccion, metas);
 
             VentanaPrincipal ventana = new VentanaPrincipal(
                     telas,
@@ -71,6 +76,8 @@ public class Main {
                     produccion,
                     recursos,
                     usos,
+                     metas,
+                    reportes,
                     acceso,
                     Main::iniciar
             );
